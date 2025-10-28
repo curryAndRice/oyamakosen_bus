@@ -17,6 +17,19 @@ const stopTimes = {
     3:["0723", "0903", "1118", "1358", "1558"],
 }
 
+const bisect = (time, timeList) => {
+    ng = -1
+    ok = timeList.length
+    while (Math.abs(ok - ng) > 1){
+        mid = Math.floor((ok + ng)/2)
+        if (parseInt(time) <= parseInt(timeList[mid])) {
+            ok = mid
+        }else{
+            ng = mid
+        }
+    }
+    return ok
+}
 
 let now = new Date()
 let h = now.getHours();
