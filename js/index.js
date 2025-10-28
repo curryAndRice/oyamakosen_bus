@@ -20,35 +20,77 @@ const stopTimes = {
     3:["0723", "0903", "1118", "1358", "1558"],
 }
 
+const dateTimeDisp = document.getElementById("DateTimeDisp");
+
+const timeStamp = document.getElementById("TimeStamp");
+
+const updateButton = document.getElementById("UpdateButton");
+
+const soonBus = document.getElementById("SoonBus");
+
 //二部探索, time <= timeList[i] を満たす 最大の i を返す
 //つまり、timeList[bisect(time, timeList)] で最寄りの時間が分かる。
 const bisect = (time, timeList) => {
-    ng = -1
-    ok = timeList.length
+    ng = -1;
+    ok = timeList.length;
     while (Math.abs(ok - ng) > 1){
-        mid = Math.floor((ok + ng)/2)
+        mid = Math.floor((ok + ng)/2);
         if (parseInt(time) <= parseInt(timeList[mid])) {
-            ok = mid
+            ok = mid;
         }else{
-            ng = mid
+            ng = mid;
         }
     }
-    return ok
+    return ok;
 }
 
-const getTimeStamp = (hour, minute) =>{
-    return parseInt(hour) * 100 + parseInt(minute)
+//時数と分数から、ソフトで扱いやすい形式に
+const getTimeStamp = (hour, minute) => {
+    return parseInt(hour) * 100 + parseInt(minute);
 }
 
+//今よりも遅いバスの中で、最初の3つのバスを求める
+const getFirstThree = (time_stamp) => {
+    let fastestIndex = {};
+    let fastTime = [];
+    for (let key in stopNames){
+        fastestIndex[key] = bisect(time_stamp, stopTimes[key]);
+    }
+
+    for (let key in stopNames){
+        for (let i = fastestIndex[key]; i<stopTimes[key].length; i++){
+            fastTime.push([key, (stopTimes[key][i])])
+        }
+    }
+    fastTime.sort((a,b) => a[1] - b[1])
+    return [fastTime[0], fastTime[1], fastTime[2]]
+}
 
 const update = () =>{
-    let now = new Date()
-    let h = now.getHours();
-    let m = now.getMinutes();
-    let s = now.getSeconds();
+    const now = new Date();
+    const h = now.getHours();
+    const m = now.getMinutes();
+    const s = now.getSeconds();
 
-    let target = document.getElementById("DateTimeDisp");
-    target.innerHTML = h+"時"+m+"分"+s+"秒";
+    // const [h, m, s] = [6,30,0]
+
+    const firstThree = getFirstThree(getTimeStamp(h, m))
+
+    let soonText = ""
+
+    for (let i=0; i<3; i++){
+        if (firstThree[i] === undefined){
+            break;
+        }
+        soonText+=firstThree[i][1]
+        soonText+=" に "
+        soonText+=stopNames[firstThree[i][0]]
+        soonText+=" 発<br>"
+    }
+
+    dateTimeDisp.innerHTML = h+"時"+m+"分"+s+"秒";
+    timeStamp.innerHTML = getTimeStamp(h, m);
+    soonBus.innerHTML = soonText
 }
 
 update()
