@@ -20,6 +20,7 @@ const timeStamp = document.getElementById("TimeStamp");
 
 const updateButton = document.getElementById("UpdateButton");
 
+const firstBus = document.getElementById("FirstBus");
 const soonBus = document.getElementById("SoonBus");
 
 //二部探索, time <= timeList[i] を満たす 最大の i を返す
@@ -62,17 +63,19 @@ const getFirstThree = (time_stamp) => {
 
 const update = () =>{
     const now = new Date();
-    const h = now.getHours();
-    const m = now.getMinutes();
-    const s = now.getSeconds();
+    // const h = now.getHours();
+    // const m = now.getMinutes();
+    // const s = now.getSeconds();
 
-    // const [h, m, s] = [6,30,0]
+    const [h, m, s] = [6,30,0]
+    dateTimeDisp.innerHTML = h+"時"+m+"分です。";
 
     const firstThree = getFirstThree(getTimeStamp(h, m));
 
+    let firstText = firstThree[0][1]+" に "+stopNames[firstThree[0][0]]+" 発";
+    firstBus.innerHTML = firstText;
     let soonText = "";
-
-    for (let i=0; i<3; i++){
+    for (let i=1; i<3; i++){
         if (firstThree[i] === undefined){
             break;
         }
@@ -81,9 +84,8 @@ const update = () =>{
         soonText+=stopNames[firstThree[i][0]];
         soonText+=" 発<br>";
     }
-
-    dateTimeDisp.innerHTML = h+"時"+m+"分";
     soonBus.innerHTML = soonText;
+
 }
 
 update();
