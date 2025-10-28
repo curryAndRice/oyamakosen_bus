@@ -36,12 +36,19 @@ const bisect = (time, timeList) => {
     return ok
 }
 
+const getTimeStamp = (hour, minute) =>{
+    return parseInt(hour) * 100 + parseInt(minute)
+}
 
 
-let now = new Date()
-let h = now.getHours();
-let m = now.getMinutes();
-let s = now.getSeconds();
+const update = () =>{
+    let now = new Date()
+    let h = now.getHours();
+    let m = now.getMinutes();
+    let s = now.getSeconds();
 
-let target = document.getElementById("DateTimeDisp");
-target.innerHTML = h+"時"+m+"分"+s+"秒";
+    let target = document.getElementById("DateTimeDisp");
+    target.innerHTML = h+"時"+m+"分"+s+"秒";
+}
+
+update()
