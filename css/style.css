@@ -12,3 +12,8 @@ div#FirstBus2{
     font-size: x-large;
     color: #ff0000;
 }
+
+div#analog{
+    width: 400px;
+    height: 400px;
+}
