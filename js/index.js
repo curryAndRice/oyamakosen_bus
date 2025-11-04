@@ -8,7 +8,7 @@ const stopNames = {
 
 //対象のバス停に止まる時間(高専 → 駅)
 const stopTimes = {
-    0:["0558","0633","0653","0733","0813","0833","0908","0933","1008","1033","1143","1213","1238","1308","1408","1438","1503","1533","1603","1633","1703","1733","1803 ","1833","1943","2013","2038","2108"],
+    0:["0558","0633","0653","0733","0813","0833","0908","0933","1008","1033","1143","1213","1238","1308","1408","1438","1503","1533","1603","1633","1703","1733","1803","1833","1943","2013","2038","2108"],
     1:["0600", "0645", "0805", "0915", "1015", "1115", "1215", "1435", "1535", "1640", "1750", "1900", "2005"],
     2:["1719", "1914"],
     3:["0723", "0903", "1118", "1358", "1558"],
@@ -16,7 +16,7 @@ const stopTimes = {
 
 //対象のバス停に止まる時間(駅→高専)
 const stopTimes2 = {
-    0:["0630","0707","0745","0757","0835","0900","0935","1000","1030","1100","1205","1235","1300","1330","1430","1500","1530","1600","1630","1705","1730","1800","1830 ","1900","2005","2035","2100","2150"],
+    0:["0630","0707","0745","0757","0835","0900","0935","1000","1030","1100","1205","1235","1300","1330","1430","1500","1530","1600","1630","1705","1730","1800","1830","1900","2005","2035","2100","2150"],
     1:["0620", "0740", "0850", "0950", "1050", "1150", "1410", "1510", "1610", "1720", "1830", "1940", "2040"],
     2:["1625", "1820"],
     3:["0615", "0755", "1010", "1250", "1450"],
@@ -71,9 +71,14 @@ const getFirstThree = (time_stamp, StopTimes) => {
     return [fastTime[0], fastTime[1], fastTime[2]];
 }
 
+// "1234" -> "12:34"
+const addColon = (fourDigitStr) => {
+    return fourDigitStr.substring(0, 2)+":"+fourDigitStr.substring(2, 4)
+}
+
 const displayFirstThree = (firstThreeData, firstElement, soonElement, appendText, finishHtml) => {
     if (firstThreeData[0]){
-        let firstText = firstThreeData[0][1]+" に "+stopNames[firstThreeData[0][0]]+appendText;
+        let firstText = addColon(firstThreeData[0][1])+" に "+stopNames[firstThreeData[0][0]]+appendText;
         firstElement.innerHTML = firstText;
     }else{
         firstElement.innerHTML = finishHtml;
@@ -84,7 +89,7 @@ const displayFirstThree = (firstThreeData, firstElement, soonElement, appendText
         if (firstThreeData[i] === undefined){
             break;
         }
-        soonText+=firstThreeData[i][1];
+        soonText+=addColon(firstThreeData[i][1]);
         soonText+=" に ";
         soonText+=stopNames[firstThreeData[i][0]];
         soonText+=appendText;
