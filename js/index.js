@@ -338,11 +338,11 @@ handObj.prototype={
 
 const update = () =>{
     const now = new Date();
-    // const h = now.getHours();
-    // const m = now.getMinutes();
-    // const s = now.getSeconds();
+    const h = now.getHours();
+    const m = now.getMinutes();
+    const s = now.getSeconds();
 
-    const [h, m, s] = [6,30,0]
+    // const [h, m, s] = [6,30,0]
     dateTimeDisp.innerHTML = h+"時"+m+"分です。";
 
     const firstThree = getFirstThree(getTimeStamp(h, m), stopTimes);
