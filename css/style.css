@@ -9,8 +9,10 @@ div#FirstBus{
     color: #ff0000;
 }
 div#FirstBus2{
-    font-size: x-large;
     color: #ff0000;
+}
+div#SoonBus2{
+    font-size: x-small;
 }
 
 div#analog{
