@@ -278,7 +278,7 @@ const handDatas = {
     },
     minute : {        // 分針
         width : 10 ,
-        color : "#00f",
+        color : "rgba(0, 64, 182, 1)",
         LengthPer:80,
         handGapPer:10,
         divNum:60
@@ -293,7 +293,7 @@ const handDatas = {
     },
     minuteFirstBus : {        // 分針 最短バス
         width: 18 ,
-        color: "#f00",
+        color: "rgba(211, 49, 0, 1)",
         LengthPer: 60,
         handGapPer: 8,
         divNum:60
@@ -369,7 +369,7 @@ const update = () =>{
     const m = now.getMinutes();
     const s = now.getSeconds();
 
-    // const [h, m, s] = [6,30,0]
+    // const [h, m, s] = [6,21,0]
     dateTimeDisp.innerHTML = h+"時"+m+"分です。";
 
     const firstThree = getFirstThree(getTimeStamp(h, m), stopTimes);
