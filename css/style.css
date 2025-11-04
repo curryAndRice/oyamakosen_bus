@@ -16,6 +16,10 @@ div#SoonBus2{
 }
 
 div#analog{
-    width: 400px;
-    height: 400px;
+    width: 300px;
+    height: 300px;
+}
+
+a.dispLink{
+    color: inherit;
 }

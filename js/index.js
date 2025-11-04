@@ -6,6 +6,21 @@ const stopNames = {
     3:"【桑東部絹路線 左回り】中久喜２丁目",
 };
 
+//対象のおーバスライブリンク
+const stopLinks = {
+    0:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000006&bscd=005",
+    1:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000008&bscd=001",
+    2:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000022&bscd=013",
+    3:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000023&bscd=011",
+}
+
+const stopLinks2 = {
+    0:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000006&bscd=019",
+    1:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000008&bscd=019",
+    2:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000022&bscd=001",
+    3:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000023&bscd=001",
+}
+
 //対象のバス停に止まる時間(高専 → 駅)
 const stopTimes = {
     0:["0558","0633","0653","0733","0813","0833","0908","0933","1008","1033","1143","1213","1238","1308","1408","1438","1503","1533","1603","1633","1703","1733","1803","1833","1943","2013","2038","2108"],
@@ -76,9 +91,11 @@ const addColon = (fourDigitStr) => {
     return fourDigitStr.substring(0, 2)+":"+fourDigitStr.substring(2, 4)
 }
 
-const displayFirstThree = (firstThreeData, firstElement, soonElement, appendText, finishHtml) => {
+const displayFirstThree = (firstThreeData, firstElement, soonElement, appendText, finishHtml, link) => {
     if (firstThreeData[0]){
-        let firstText = addColon(firstThreeData[0][1])+" に "+stopNames[firstThreeData[0][0]]+appendText;
+        let firstText = "<a class='dispLink', href='"+link[firstThreeData[0][0]]+"'>";
+        firstText += addColon(firstThreeData[0][1])+" に "+stopNames[firstThreeData[0][0]]+appendText;
+        firstText += "</a>"
         firstElement.innerHTML = firstText;
     }else{
         firstElement.innerHTML = finishHtml;
@@ -89,40 +106,17 @@ const displayFirstThree = (firstThreeData, firstElement, soonElement, appendText
         if (firstThreeData[i] === undefined){
             break;
         }
+        soonText+= "<a class='dispLink', href='"+link[firstThreeData[i][0]]+"'>";
         soonText+=addColon(firstThreeData[i][1]);
         soonText+=" に ";
         soonText+=stopNames[firstThreeData[i][0]];
         soonText+=appendText;
-        soonText+="<br>";
+        soonText+="</a><br>";
     }
     soonElement.innerHTML = soonText;
 }
 
 
-
-// https://note.affi-sapo-sv.com/js-canvas-analog-clock.php より
-window.addEventListener("DOMContentLoaded", () => {
-    const { context , hankei } =  initialCanvas("analog");
-    const cCircle = centerCircle( context );
-    const mBan = mojiban ( context , hankei );
-    const hourHand = new handObj( handDatas.hour , context , hankei );
-    const minuteHand = new handObj( handDatas.minute , context , hankei );
-    const secondHand = new handObj( handDatas.second , context , hankei );
-
-    const sideLength = hankei * 2;
-    
-    setInterval(()=> {
-        const date = new Date();
-        // 時計を消去
-        context.clearRect(-hankei , -hankei , sideLength , sideLength);
-        mBan();
-        hourHand.rewrite( (date.getHours()%12) * 60 + date.getMinutes() );
-        minuteHand.rewrite( date.getMinutes() );
-        secondHand.rewrite( date.getSeconds() );
-        cCircle( );
-        update();
-    },1000);
-});
 /*
 * キャンバスの作成・初期化
 */
@@ -164,6 +158,8 @@ const initialCanvas = id => {
     context.translate( hankei , hankei );
 
     viewElm.appendChild( cvs );
+
+    // context.scale(0.25,0.25)
 
     return { hankei:hankei , context : context };
 };
@@ -260,13 +256,11 @@ const mojiban = ( context , hankei  ) =>{
         const MathPi = Math.PI / 180;
 
         // 文字の基準位置・フォントを設定
-        [ ctx.textAlign , ctx.textBaseline , ctx.font ] =
-                    [ "center" , "middle" , mojibanInfo.text.font ];
+        [ ctx.textAlign , ctx.textBaseline , ctx.font ] = [ "center" , "middle" , mojibanInfo.text.font ];
 
         for( let i = 0 ; i < 12 ; i ++){
             const deg = i * r12 * MathPi ;
-            const [ mojiX , mojiY ] =
-                [ moziPos * Math.sin( deg  ) , -moziPos * Math.cos( deg  ) ] ;
+            const [ mojiX , mojiY ] = [ moziPos * Math.sin( deg  ) , -moziPos * Math.cos( deg  ) ] ;
 
             ctx.fillText( i === 0 ? "12" : i.toString() , mojiX, mojiY );
         }
@@ -278,23 +272,31 @@ const mojiban = ( context , hankei  ) =>{
 const handDatas = {
     hour : {        // 時針
         width : 10 ,    // 幅
-        color : "#000", // 色
+        color : "#00f", // 色
         LengthPer:55,   // 長さ（半径に対する割合)
         handGapPer:10,  // 反対側に飛び出る長さ（半径に対する割合)
         divNum:12 * 60  // 一周の分割数
     },
     minute : {        // 分針
         width : 10 ,
-        color : "#000",
+        color : "#00f",
         LengthPer:80,
         handGapPer:10,
         divNum:60
     },
-    second : {        // 秒針
-        width : 5 ,
-        color : "#f00",
-        LengthPer:85,
-        handGapPer:20,
+
+    hourFirstBus : {        // 時針 最短バス
+        width: 18 ,
+        color: "#f00",
+        LengthPer: 35,
+        handGapPer: 8,
+        divNum:12 * 60
+    },
+    minuteFirstBus : {        // 分針 最短バス
+        width: 18 ,
+        color: "#f00",
+        LengthPer: 60,
+        handGapPer: 8,
         divNum:60
     },
 };
@@ -309,7 +311,7 @@ const handObj = function( handData , context , hankei ){
 
     // パスを作成
     const pathCtx = new Path2D();
-    [ pathCtx.lineWidth , pathCtx.strokeStyle ] = [ handData.width , handData.color ];
+    ({ width: pathCtx.lineWidth, color: pathCtx.strokeStyle } = handData);
     pathCtx.moveTo( 0 , - ( topPos * handData.LengthPer / 100 ));
     pathCtx.lineTo( 0 ,  topPos * handData.handGapPer / 100  );
     this.pathCtx = pathCtx;
@@ -322,7 +324,7 @@ handObj.prototype={
         const ctx = this.ctx;
         ctx.save();
         ctx.beginPath();
-        [ ctx.lineWidth , ctx.strokeStyle ] = [ this.handData.width , this.handData.color ];
+        ({ width:ctx.lineWidth, color:ctx.strokeStyle } = this.handData);
         if( val !== 0 ){
             ctx.rotate( this.rotateAngle * val  );
         }
@@ -331,7 +333,33 @@ handObj.prototype={
     }
 };
 
+const renderClock = (hour, minute, hourFirstBus, minuteFirstBus) =>{
+    // 時計を消去
+    context.clearRect(-hankei , -hankei , sideLength , sideLength);
+    // 時計を召喚
+    mBan();
+    hourHandFirstBus.rewrite( (hourFirstBus%12) * 60 + minuteFirstBus );
+    minuteHandFirstBus.rewrite( minuteFirstBus );
+    hourHand.rewrite( (hour%12) * 60 + minute );
+    minuteHand.rewrite( minute );
+    cCircle( );
+}
 
+// https://note.affi-sapo-sv.com/js-canvas-analog-clock.php より
+
+const { context , hankei } =  initialCanvas("analog");
+const cCircle = centerCircle( context );
+const mBan = mojiban ( context , hankei );
+const hourHand = new handObj( handDatas.hour , context , hankei );
+const minuteHand = new handObj( handDatas.minute , context , hankei );
+const hourHandFirstBus = new handObj( handDatas.hourFirstBus , context , hankei );
+const minuteHandFirstBus = new handObj( handDatas.minuteFirstBus , context , hankei );
+
+const sideLength = hankei * 2;
+
+setInterval(()=> {
+    update();
+},1000);
 
 
 
@@ -348,8 +376,26 @@ const update = () =>{
     const firstThree = getFirstThree(getTimeStamp(h, m), stopTimes);
     const firstThree2 = getFirstThree(getTimeStamp(h, m), stopTimes2);
 
-    displayFirstThree(firstThree, firstBus, soonBus, " 発", "本日の駅行きバスは終了しました。");
-    displayFirstThree(firstThree2, firstBus2, soonBus2, " へ駅から出発", "本日の<ruby>高専行きバス<rp>(</rp><rt>地獄への急行バス</rt><rp>)</rp></ruby> は終了しました。");
+    if (typeof firstThree[0] === "undefined"){
+        renderClock(h,m,0,0);
+    }else{
+        renderClock(h,m,parseInt(firstThree[0][1].substring(0, 2)), parseInt(firstThree[0][1].substring(2, 4)))
+    }
+    
+    displayFirstThree(
+        firstThree,
+        firstBus,
+        soonBus,
+        " 発", "本日の駅行きバスは終了しました。",
+        stopLinks
+    );
+    displayFirstThree(
+        firstThree2,
+        firstBus2,
+        soonBus2,
+        " へ駅から出発", "本日の<ruby>高専行きバス<rp>(</rp><rt>地獄への急行バス</rt><rp>)</rp></ruby> は終了しました。",
+        stopLinks2
+    );
 }
 
 update();
