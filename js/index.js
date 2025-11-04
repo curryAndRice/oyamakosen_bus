@@ -15,8 +15,8 @@ const stopLinks = {
 }
 
 const stopLinks2 = {
-    0:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000006&bscd=019",
-    1:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000008&bscd=019",
+    0:"http://o-bus.bus-go.com/sp/sp-time-table.php?bccd=03090001&rtcd=000005&bscd=001",
+    1:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000007&bscd=001",
     2:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000023&bscd=001",
     3:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000022&bscd=001",
 }
