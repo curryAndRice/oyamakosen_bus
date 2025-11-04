@@ -39,7 +39,6 @@ const stopTimes2 = {
 
 const dateTimeDisp = document.getElementById("DateTimeDisp");
 const timeStamp = document.getElementById("TimeStamp");
-const updateButton = document.getElementById("UpdateButton");
 
 const firstBus = document.getElementById("FirstBus");
 const soonBus = document.getElementById("SoonBus");
