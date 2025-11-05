@@ -374,13 +374,13 @@ const update = () =>{
     const s = now.getSeconds();
 
     // const [h, m, s] = [6,21,0]
-    dateTimeDisp.innerHTML = h+"時"+m+"分です。";
+    dateTimeDisp.innerHTML = h+"時"+m+"分。";
 
     const firstThree = getFirstThree(getTimeStamp(h, m), stopTimes);
     const firstThree2 = getFirstThree(getTimeStamp(h, m), stopTimes2);
 
     firstBusMinute = getMinuteFromTimeStamp(firstThree[0][1])-getMinuteFromTimeStamp(getTimeStamp(h,m));
-    FirstBusDisp.innerHTML = firstBusMinute+"分後に駅行き";
+    FirstBusDisp.innerHTML = firstBusMinute+"分後出発";
 
     if (typeof firstThree[0] === "undefined"){
         renderClock(h,m,0,0);
