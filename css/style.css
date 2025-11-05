@@ -4,6 +4,17 @@ p#DateTimeDisp{
     color: #0000ff;
     -webkit-text-stroke: .5px black;
 }
+
+p#FirstBusDisp{
+    margin: 0;
+    font-size: xx-large;
+    color: red;
+}
+
+div#dateDisp{
+    display: flex;
+}
+
 div#FirstBus{
     font-size: x-large;
     color: #ff0000;

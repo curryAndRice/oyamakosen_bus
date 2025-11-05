@@ -90,6 +90,10 @@ const addColon = (fourDigitStr) => {
     return fourDigitStr.substring(0, 2)+":"+fourDigitStr.substring(2, 4)
 }
 
+const getMinuteFromTimeStamp = (time_stamp) => {
+    return Math.floor(time_stamp/100)*60 + time_stamp%100
+}
+
 const displayFirstThree = (firstThreeData, firstElement, soonElement, appendText, finishHtml, link) => {
     if (firstThreeData[0]){
         let firstText = "<a class='dispLink', href='"+link[firstThreeData[0][0]]+"'>";
@@ -374,6 +378,9 @@ const update = () =>{
 
     const firstThree = getFirstThree(getTimeStamp(h, m), stopTimes);
     const firstThree2 = getFirstThree(getTimeStamp(h, m), stopTimes2);
+
+    firstBusMinute = getMinuteFromTimeStamp(firstThree[0][1])-getMinuteFromTimeStamp(getTimeStamp(h,m));
+    FirstBusDisp.innerHTML = firstBusMinute+"分後に駅行き";
 
     if (typeof firstThree[0] === "undefined"){
         renderClock(h,m,0,0);
