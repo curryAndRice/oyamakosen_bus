@@ -393,12 +393,11 @@ const update = () =>{
     const firstThree = getFirstThree(getTimeStamp(h, m), stopTimes);
     const firstThree2 = getFirstThree(getTimeStamp(h, m), stopTimes2);
 
-    firstBusMinute = getMinuteFromTimeStamp(firstThree[0][1])-getMinuteFromTimeStamp(getTimeStamp(h,m));
-    FirstBusDisp.innerHTML = firstBusMinute+"分後出発";
-
     if (typeof firstThree[0] === "undefined"){
         renderClock(h,m,0,0);
     }else{
+        firstBusMinute = getMinuteFromTimeStamp(firstThree[0][1])-getMinuteFromTimeStamp(getTimeStamp(h,m));
+        FirstBusDisp.innerHTML = firstBusMinute+"分後出発";
         renderClock(h,m,parseInt(firstThree[0][1].substring(0, 2)), parseInt(firstThree[0][1].substring(2, 4)))
     }
     
