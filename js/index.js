@@ -85,6 +85,20 @@ const getFirstThree = (time_stamp, StopTimes) => {
     return [fastTime[0], fastTime[1], fastTime[2]];
 }
 
+//もう発車してしまったバスのうち、3路線の最後のバスを求める
+//時系列順にソートした結果、東光高岳で2/3本出発していても、1種類しか表示されず、他の路線が繰越される
+const getDeparturedThree = (time_stamp, StopTimes) =>{
+    let lateTime = [];
+    for (let key in stopNames){
+        let latestIndex =  bisect(time_stamp, StopTimes[key]);
+        if (latestIndex > 0){
+            lateTime.push([key, (StopTimes[key][latestIndex-1])])
+        }
+    }
+    lateTime.sort((a,b) => b[1]-a[1])
+    return [lateTime[0], lateTime[1], lateTime[2]];
+}
+
 // "1234" -> "12:34"
 const addColon = (fourDigitStr) => {
     return fourDigitStr.substring(0, 2)+":"+fourDigitStr.substring(2, 4)
