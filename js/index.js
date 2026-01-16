@@ -147,15 +147,22 @@ const clickHandler = () =>{
     }
 }
 
+//時刻が逆行しているか
+let is_timeNow = true;
+
 //input要素で逆行時刻取得
 let changedHour = -1;
 let changedMinute = -1;
-changeableClock.addEventListener('input', () => {
+const setNewTime = () =>{
     is_timeNow = false;
     let [h, m, s] = (changeableClock.value).split(':');
     changedHour = h;
     changedMinute = m;
-})
+    update();
+}
+changeableClock.addEventListener('input', setNewTime);
+changeableClock.addEventListener("change", setNewTime);
+changeableClock.addEventListener("blur", setNewTime);
 
 //時刻リセットボタンでリセット
 resetTime.addEventListener("click", () => {
@@ -408,8 +415,6 @@ const sideLength = hankei * 2;
 setInterval(()=> {
     update();
 },1000);
-
-let is_timeNow = true;
 
 
 
