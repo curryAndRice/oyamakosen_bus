@@ -34,3 +34,7 @@ div#analog{
 a.dispLink{
     color: inherit;
 }
+
+#additionalInfo{
+    display: none;
+}

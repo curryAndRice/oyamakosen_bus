@@ -36,7 +36,7 @@ const stopTimes2 = {
     2:["1625", "1820"],
     3:["0615", "0755", "1010", "1250", "1450"],
 };
-const setTime = document.getElementById("setTime")
+const additionalInfo = document.getElementById("additionalInfo")
 const changeableClock = document.getElementById("ChangeableClock");
 const resetTime = document.getElementById("ResetTime")
 
@@ -140,10 +140,10 @@ const displayFirstThree = (firstThreeData, firstElement, soonElement, appendText
 
 //時計クリックで逆行時計表示
 const clickHandler = () =>{
-    if (setTime.style.display === "block"){
-        setTime.style.display = "none";
+    if (additionalInfo.style.display === "block"){
+        additionalInfo.style.display = "none";
     }else{
-        setTime.style.display = "block";
+        additionalInfo.style.display = "block";
     }
 }
 
