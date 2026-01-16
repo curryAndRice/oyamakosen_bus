@@ -36,6 +36,9 @@ const stopTimes2 = {
     2:["1625", "1820"],
     3:["0615", "0755", "1010", "1250", "1450"],
 };
+const setTime = document.getElementById("setTime")
+const changeableClock = document.getElementById("ChangeableClock");
+const resetTime = document.getElementById("ResetTime")
 
 const dateTimeDisp = document.getElementById("DateTimeDisp");
 const timeStamp = document.getElementById("TimeStamp");
@@ -134,6 +137,33 @@ const displayFirstThree = (firstThreeData, firstElement, soonElement, appendText
 }
 
 
+
+//時計クリックで逆行時計表示
+const clickHandler = () =>{
+    if (setTime.style.display === "block"){
+        setTime.style.display = "none";
+    }else{
+        setTime.style.display = "block";
+    }
+}
+
+//input要素で逆行時刻取得
+let changedHour = -1;
+let changedMinute = -1;
+changeableClock.addEventListener('input', () => {
+    is_timeNow = false;
+    let [h, m, s] = (changeableClock.value).split(':');
+    changedHour = h;
+    changedMinute = m;
+})
+
+//時刻リセットボタンでリセット
+resetTime.addEventListener("click", () => {
+    is_timeNow = true;
+    update();
+})
+
+
 /*
 * キャンバスの作成・初期化
 */
@@ -177,6 +207,7 @@ const initialCanvas = id => {
     viewElm.appendChild( cvs );
 
     // context.scale(0.25,0.25)
+    cvs.addEventListener('click', clickHandler, false);
 
     return { hankei:hankei , context : context };
 };
@@ -378,27 +409,37 @@ setInterval(()=> {
     update();
 },1000);
 
+let is_timeNow = true;
 
 
 
 const update = () =>{
-    const now = new Date();
-    const h = now.getHours();
-    const m = now.getMinutes();
-    const s = now.getSeconds();
+    let h = -1;
+    let m = -1;
+    if (is_timeNow){
+        const now = new Date();
+        h = now.getHours();
+        m = now.getMinutes();
+        // const s = now.getSeconds();
+        // const [h, m, s] = [6,21,0]
+    }else{
+        changeableClock
+        h = changedHour;
+        m = changedMinute;
+    }
 
-    // const [h, m, s] = [6,21,0]
+
     dateTimeDisp.innerHTML = h+"時"+m+"分。";
 
     const firstThree = getFirstThree(getTimeStamp(h, m), stopTimes);
     const firstThree2 = getFirstThree(getTimeStamp(h, m), stopTimes2);
 
-    firstBusMinute = getMinuteFromTimeStamp(firstThree[0][1])-getMinuteFromTimeStamp(getTimeStamp(h,m));
-    FirstBusDisp.innerHTML = firstBusMinute+"分後出発";
-
     if (typeof firstThree[0] === "undefined"){
         renderClock(h,m,0,0);
+        FirstBusDisp.innerHTML = "明日出発";
     }else{
+        firstBusMinute = getMinuteFromTimeStamp(firstThree[0][1])-getMinuteFromTimeStamp(getTimeStamp(h,m));
+        FirstBusDisp.innerHTML = firstBusMinute+"分後出発";
         renderClock(h,m,parseInt(firstThree[0][1].substring(0, 2)), parseInt(firstThree[0][1].substring(2, 4)))
     }
     
