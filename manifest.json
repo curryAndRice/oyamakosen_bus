@@ -1,0 +1,9 @@
+{
+    "name": "o-bus_finder",
+    "short_name": "家への誘い",
+    "lang": "ja-JP",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "black",
+    "theme_color": "black"
+}
