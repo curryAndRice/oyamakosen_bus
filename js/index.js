@@ -86,7 +86,7 @@ const getTimeStamp = (hour, minute) => {
 }
 
 //今よりも遅いバスの中で、最初の3つのバスを求める
-const getFirstThree = (time_stamp, StopTimes) => {
+const getFirstThree = (time_stamp, StopTimes, ArriveTimes) => {
     let fastestIndex = {};
     let fastTime = [];
     for (let key in stopNames){
@@ -95,7 +95,7 @@ const getFirstThree = (time_stamp, StopTimes) => {
 
     for (let key in stopNames){
         for (let i = fastestIndex[key]; i<StopTimes[key].length; i++){
-            fastTime.push([key, (StopTimes[key][i])])
+            fastTime.push([key, (StopTimes[key][i]), (ArriveTimes[key][i])])
         }
     }
     fastTime.sort((a,b) => a[1] - b[1]);
@@ -125,10 +125,16 @@ const getMinuteFromTimeStamp = (time_stamp) => {
     return Math.floor(time_stamp/100)*60 + time_stamp%100
 }
 
-const displayFirstThree = (firstThreeData, firstElement, soonElement, appendText, finishHtml, link) => {
+const displayFirstThree = (
+    firstThreeData,
+    firstElement,
+    soonElement,
+    appendText,
+    finishHtml,
+    link) => {
     if (firstThreeData[0]){
         let firstText = "<a class='dispLink', href='"+link[firstThreeData[0][0]]+"'>";
-        firstText += addColon(firstThreeData[0][1])+" に "+stopNames[firstThreeData[0][0]]+appendText;
+        firstText += addColon(firstThreeData[0][1])+"→"+addColon(firstThreeData[0][2])+" "+stopNames[firstThreeData[0][0]]+appendText;
         firstText += "</a>"
         firstElement.innerHTML = firstText;
     }else{
@@ -142,7 +148,9 @@ const displayFirstThree = (firstThreeData, firstElement, soonElement, appendText
         }
         soonText+= "<a class='dispLink', href='"+link[firstThreeData[i][0]]+"'>";
         soonText+=addColon(firstThreeData[i][1]);
-        soonText+=" に ";
+        soonText+="→";
+        soonText+=addColon(firstThreeData[i][2]);
+        soonText+=" ";
         soonText+=stopNames[firstThreeData[i][0]];
         soonText+=appendText;
         soonText+="</a><br>";
@@ -450,8 +458,8 @@ const update = () =>{
 
     dateTimeDisp.innerHTML = h+"時"+m+"分。";
 
-    const firstThree = getFirstThree(getTimeStamp(h, m), stopTimes);
-    const firstThree2 = getFirstThree(getTimeStamp(h, m), stopTimes2);
+    const firstThree = getFirstThree(getTimeStamp(h, m), stopTimes, arriveTimes);
+    const firstThree2 = getFirstThree(getTimeStamp(h, m), stopTimes2, arriveTimes2);
 
     if (typeof firstThree[0] === "undefined"){
         renderClock(h,m,0,0);
