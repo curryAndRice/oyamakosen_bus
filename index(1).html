@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="小山高専⇔小山駅東口のバスを調べて、とっとと家にずらかろう!!学校は疲れるからしょうがないね。">
+<meta name="theme-color" content="#3B505B">
+<title>家への誘い</title>
+<style>
+:root{
+  --bg:#3B505B;          /* 濃紺スレート */
+  --bg-deep:#324650;
+  --card:#FFFFFF;
+  --ink:#3F5866;         /* 時刻の青灰 */
+  --ink-soft:#7C919C;
+  --line-blue:#7FC9E8;
+  --accent:#2BA6DF;      /* 現在時刻の水色 */
+  --joto:#D95B4B;        /* 城東中久喜線 = 赤 */
+  --takaoka:#E2A63D;     /* 高岳線 = 黄 */
+  --kuwaR:#3E8FC7;       /* 桑東部絹 右回り = 青 */
+  --kuwaL:#2F6E9E;       /* 桑東部絹 左回り = 濃青 */
+  --tab-green:#3DA870;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic UI","Noto Sans JP",system-ui,sans-serif;
+  background:var(--bg);
+  color:#fff;
+  display:flex;flex-direction:column;
+  height:100dvh;overflow:hidden;
+}
+button{font-family:inherit;background:none;border:none;color:inherit;cursor:pointer}
+a{color:inherit;text-decoration:none}
+
+/* ===== ヘッダー ===== */
+header{padding:10px 14px 12px;flex:none}
+.route-row{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.route-names{
+  display:flex;align-items:center;gap:10px;
+  font-size:26px;font-weight:800;letter-spacing:.02em;
+}
+.route-names .arrow{color:#9FB4BE;font-size:20px;font-weight:400}
+.swap-btn{
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .25s ease, background .15s;
+  flex:none;
+}
+.swap-btn:active{background:rgba(255,255,255,.25)}
+.swap-btn.flip{transform:rotate(180deg)}
+.swap-btn svg{width:20px;height:20px;stroke:#fff}
+.depart-row{
+  margin-top:4px;text-align:center;
+  color:#A9BCC5;font-size:14px;
+}
+.depart-row button{
+  color:#A9BCC5;font-size:14px;padding:2px 6px;border-radius:6px;
+}
+.depart-row button:active{background:rgba(255,255,255,.12)}
+.depart-row .edited{color:#FFD37A;font-weight:700}
+
+/* 時刻さかのぼりパネル */
+#timePanel{
+  display:none;justify-content:center;align-items:center;gap:10px;
+  margin-top:8px;
+}
+#timePanel.open{display:flex}
+#timePanel input[type="time"]{
+  font:inherit;font-size:16px;padding:6px 10px;border-radius:8px;border:none;
+  background:rgba(255,255,255,.92);color:#243b46;
+}
+#timePanel .reset{
+  font-size:13px;font-weight:700;padding:8px 12px;border-radius:8px;
+  background:rgba(255,255,255,.14);
+}
+
+/* ===== 結果カード ===== */
+main{
+  flex:1;min-height:0;
+  background:var(--card);
+  border-radius:14px 14px 0 0;
+  display:flex;flex-direction:column;
+  color:var(--ink);
+  overflow:hidden;
+}
+/* 上部の青ライン(先発サマリー) */
+.summary{
+  flex:none;position:relative;
+  padding:14px 16px 0;
+}
+.summary .lead{
+  display:flex;align-items:flex-end;justify-content:space-between;
+}
+.lead-left .mins{font-size:16px;font-weight:800}
+.lead-left .dep{font-size:30px;font-weight:800;line-height:1.05}
+.lead-right{
+  color:var(--accent);font-size:28px;font-weight:800;
+}
+.lead-right small{display:block;font-size:11px;font-weight:700;color:#9fb6c2;text-align:right}
+.summary .bar{
+  height:4px;border-radius:2px;margin:6px 0 2px;
+  background:linear-gradient(90deg,var(--line-blue) 70%,#CFE9F5);
+}
+
+/* カスケード表示エリア */
+.cascade-wrap{
+  flex:1;min-height:0;
+  overflow-y:auto;overflow-x:hidden;
+  touch-action:none;                   /* タッチは全面JSで処理(斜めスワイプ対応) */
+  overscroll-behavior:contain;
+  user-select:none;-webkit-user-select:none;
+  cursor:grab;
+  background:
+    repeating-linear-gradient(to bottom,transparent 0 43px,#EDF1F3 43px 44px);
+}
+.cascade-wrap.dragging{cursor:grabbing}
+.cascade{position:relative;will-change:transform}
+.result.past{opacity:.5;filter:grayscale(.35)}
+.chip.gone{background:#9AACB6}
+.result{
+  position:absolute;width:150px;
+  display:flex;flex-direction:column;align-items:center;
+  color:var(--ink);
+}
+.result .above{text-align:center;line-height:1.15;margin-bottom:2px}
+.result .above .dur{font-size:15px;font-weight:800;color:#5E7683}
+.result .above .dep{font-size:26px;font-weight:800}
+.oval{
+  width:96px;height:130px;border-radius:50%;
+  background:#EFF1F3;
+  display:flex;align-items:center;justify-content:center;
+}
+.badge{
+  width:56px;height:56px;border-radius:12px;
+  border:4px solid;
+  background:#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-weight:900;line-height:1;
+}
+.badge .b1{font-size:17px;letter-spacing:.05em;color:#243b46}
+.badge .b2{font-size:10px;margin-top:2px;color:#6b7f8a}
+.result .below{text-align:center;margin-top:4px;line-height:1.15}
+.result .below .arr{font-size:24px;font-weight:800}
+.result .below .arr small{font-size:12px;font-weight:700;color:#7C919C;margin-left:2px}
+.chips{display:flex;gap:5px;justify-content:center;margin-top:5px}
+.chip{
+  color:#fff;font-size:11px;font-weight:800;
+  padding:3px 8px;border-radius:999px;white-space:nowrap;
+}
+.chip.first{background:var(--accent)}
+.stopname{
+  margin-top:5px;font-size:10px;color:#8CA0AB;line-height:1.3;
+  text-align:center;max-width:150px;
+}
+.end-card{
+  position:absolute;width:min(300px,86vw);
+  background:#F4F6F7;border-radius:12px;padding:22px 16px;
+  text-align:center;font-size:15px;font-weight:700;color:#5E7683;
+}
+ruby rt{font-size:9px;color:#c0665a}
+
+/* ===== 路線フィルタタブ ===== */
+.tabs{
+  flex:none;display:flex;border-top:1px solid #E4E9EC;background:#fff;
+}
+.tabs button{
+  flex:1;padding:12px 0 10px;font-size:16px;font-weight:800;color:#8CA0AB;
+  position:relative;
+}
+.tabs button.on{color:#2b3f4a}
+.tabs button.on::after{
+  content:"";position:absolute;left:22%;right:22%;bottom:4px;height:4px;
+  border-radius:2px;background:var(--tab-green);
+}
+
+/* ===== 下部ナビ ===== */
+nav{
+  flex:none;display:flex;background:var(--bg-deep);
+  padding:6px 0 max(8px,env(safe-area-inset-bottom));
+}
+nav a,nav button{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  font-size:11px;color:#B7C6CD;padding:4px 0;
+}
+nav .active{color:#fff}
+nav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ===== シート(時刻表PDF / 情報) ===== */
+.sheet-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);
+  display:none;align-items:flex-end;z-index:10;
+}
+.sheet-bg.open{display:flex}
+.sheet{
+  background:#fff;color:#3a4d58;width:100%;
+  border-radius:16px 16px 0 0;
+  padding:18px 18px max(24px,env(safe-area-inset-bottom));
+  max-height:75dvh;overflow:auto;
+}
+.sheet h2{font-size:16px;margin-bottom:12px}
+.sheet .pdf-link{
+  display:flex;align-items:center;gap:10px;
+  padding:13px 8px;border-bottom:1px solid #EDF1F3;font-weight:700;font-size:14px;
+}
+.sheet .dot{width:14px;height:14px;border-radius:4px;flex:none}
+.sheet p{font-size:12px;line-height:1.7;color:#6b7f8a;margin-top:12px}
+.sheet .ext{
+  display:block;margin-top:12px;padding:12px;border-radius:10px;
+  background:#F0F6FA;color:#2273a3;font-weight:700;font-size:13px;text-align:center;
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="route-row">
+    <div class="route-names">
+      <span id="fromName">小山高専</span>
+      <span class="arrow">→</span>
+      <span id="toName">小山駅</span>
+    </div>
+    <button class="swap-btn" id="swapBtn" aria-label="方向を切り替え">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 7h13M14 3.5 17.5 7 14 10.5"/>
+        <path d="M20 17H7M10 13.5 6.5 17l3.5 3.5"/>
+      </svg>
+    </button>
+  </div>
+  <div class="depart-row">
+    <button id="departBtn">読み込み中…</button>
+  </div>
+  <div id="timePanel">
+    <input type="time" id="ChangeableClock" step="60">
+    <button class="reset" id="ResetTime">現在時刻に戻す</button>
+  </div>
+</header>
+
+<main>
+  <div class="summary">
+    <div class="lead">
+      <div class="lead-left">
+        <div class="mins" id="leadMins">&nbsp;</div>
+        <div class="dep" id="leadDep">--:--</div>
+      </div>
+      <div class="lead-right"><small>基準時刻</small><span id="nowClock">--:--</span></div>
+    </div>
+    <div class="bar"></div>
+  </div>
+
+  <div class="cascade-wrap" id="cascadeWrap">
+    <div class="cascade" id="cascade"></div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button data-f="all" class="on">すべて</button>
+    <button data-f="1">城東</button>
+    <button data-f="0">高岳</button>
+    <button data-f="kuwa">桑絹</button>
+  </div>
+</main>
+
+<nav>
+  <button class="active">
+    <svg viewBox="0 0 24 24"><path d="M5 20V9M12 20V4M19 20v-7"/></svg>
+    経路検索
+  </button>
+  <a href="http://o-bus.bus-go.com/">
+    <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="15" rx="2"/><path d="M4 9h16M8 21l1-3M16 21l-1-3"/><circle cx="8.5" cy="14.5" r=".5"/><circle cx="15.5" cy="14.5" r=".5"/></svg>
+    バス位置
+  </a>
+  <button id="pdfNav">
+    <svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h7"/></svg>
+    時刻表PDF
+  </button>
+  <button id="infoNav">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+    情報
+  </button>
+</nav>
+
+<!-- 時刻表PDFシート -->
+<div class="sheet-bg" id="pdfSheet">
+  <div class="sheet">
+    <h2>時刻表 (公式PDF)</h2>
+    <a class="pdf-link" href="https://www.city.oyama.tochigi.jp/data/doc/1758095170_doc_873_0.pdf"><span class="dot" style="background:var(--joto)"></span>城東中久喜線</a>
+    <a class="pdf-link" href="https://www.city.oyama.tochigi.jp/data/doc/1758095166_doc_873_0.pdf"><span class="dot" style="background:var(--takaoka)"></span>高岳線</a>
+    <a class="pdf-link" href="https://www.city.oyama.tochigi.jp/data/doc/1758095215_doc_873_0.pdf"><span class="dot" style="background:var(--kuwaR)"></span>桑東部絹路線</a>
+  </div>
+</div>
+
+<!-- 情報シート -->
+<div class="sheet-bg" id="infoSheet">
+  <div class="sheet">
+    <h2>このアプリについて</h2>
+    <p>小山高専から小山駅東口まで行く最速のバスを調べるだけのアプリです。各便をタップすると、おーバスliveでバスの現在位置が確認できます。このアプリは、小山市や小山高専、株式会社アチピレーションテクノロジーとは関係ありません。※到着時刻は参考程度に捉えてください。</p>
+    <p>「出発時刻」の行をタップすると、時刻を変えて検索できます。</p>
+    <a class="ext" href="http://o-bus.bus-go.com/">おーバス live を開く</a>
+    <a class="ext" href="https://github.com/curryAndRice/oyamakosen_bus">repository</a>
+  </div>
+</div>
+
+<script>
+/* ===================== データ(従来のまま) ===================== */
+const stopNames = {
+  0:"【高岳線】小山高専入口",
+  1:"【城東中久喜線】高専正門",
+  2:"【桑東部絹路線 右回り】高専正門",
+  3:"【桑東部絹路線 左回り】中久喜２丁目",
+};
+const stopLinks = {
+  0:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000006&bscd=005",
+  1:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000008&bscd=001",
+  2:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000023&bscd=028",
+  3:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000022&bscd=030",
+};
+const stopLinks2 = {
+  0:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000005&bscd=001",
+  1:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000007&bscd=001",
+  2:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000023&bscd=001",
+  3:"http://o-bus.bus-go.com/sp/sp-busgo-map.php?bccd=03090001&rtcd=000022&bscd=001",
+};
+const stopTimes = {
+  0:["0558","0633","0653","0733","0813","0833","0908","0933","1008","1033","1143","1213","1238","1308","1408","1438","1503","1533","1603","1633","1703","1733","1803","1833","1943","2013","2038","2108"],
+  1:["0600","0645","0805","0915","1015","1115","1215","1435","1535","1640","1750","1900","2005"],
+  2:["1719","1914"],
+  3:["0723","0903","1118","1358","1558"],
+};
+const stopTimes2 = {
+  0:["0630","0707","0745","0757","0835","0900","0935","1000","1030","1100","1205","1235","1300","1330","1430","1500","1530","1600","1630","1705","1730","1800","1830","1900","2005","2035","2100","2150"],
+  1:["0620","0740","0850","0950","1050","1150","1410","1510","1610","1720","1830","1940","2040"],
+  2:["1625","1820"],
+  3:["0615","0755","1010","1250","1450"],
+};
+const arriveTimes = {
+  0:["0615","0650","0710","0750","0830","0850","0925","0950","1025","1050","1200","1230","1255","1325","1425","1455","1520","1550","1620","1650","1720","1750","1820","1850","2000","2030","2055","2125"],
+  1:["0615","0710","0830","0940","1040","1140","1240","1500","1600","1705","1815","1925","2025"],
+  2:["1745","1940"],
+  3:["0745","0925","1140","1420","1620"],
+};
+const arriveTimes2 = {
+  0:["0643","0720","0758","0810","0848","0913","0948","1013","1043","1113","1218","1248","1313","1343","1443","1513","1543","1613","1643","1718","1743","1813","1843","1913","2018","2048","2113","2203"],
+  1:["0645","0805","0915","1015","1115","1215","1435","1535","1640","1750","1900","2005","2100"],
+  2:["1639","1834"],
+  3:["0633","0813","1028","1308","1508"],
+};
+
+/* 路線の見た目 */
+const routeMeta = {
+  0:{b1:"高岳", b2:"", color:"var(--takaoka)", chip:"高岳線"},
+  1:{b1:"城東", b2:"", color:"var(--joto)",    chip:"城東中久喜線"},
+  2:{b1:"桑絹", b2:"右回り", color:"var(--kuwaR)", chip:"桑絹 右"},
+  3:{b1:"桑絹", b2:"左回り", color:"var(--kuwaL)", chip:"桑絹 左"},
+};
+
+/* ===================== 状態 ===================== */
+let direction = 0;      // 0: 高専→駅 / 1: 駅→高専
+let filter = "all";     // all | "0" | "1" | kuwa
+let is_timeNow = true;
+let changedHour = -1, changedMinute = -1;
+
+/* ===================== ユーティリティ ===================== */
+const bisect = (time, list) => {
+  let ng = -1, ok = list.length;
+  while (ok - ng > 1){
+    const mid = (ok + ng) >> 1;
+    if (parseInt(time) <= parseInt(list[mid])) ok = mid; else ng = mid;
+  }
+  return ok;
+};
+const ts = (h, m) => parseInt(h)*100 + parseInt(m);
+const colon = s => s.substring(0,2)+":"+s.substring(2,4);
+const toMin = t => Math.floor(t/100)*60 + t%100;
+const pad = n => String(n).padStart(2,"0");
+const WD = ["日","月","火","水","木","金","土"];
+
+const routeVisible = key => {
+  if (filter === "all") return true;
+  if (filter === "kuwa") return key === "2" || key === "3";
+  return key === filter;
+};
+
+/* 現時刻以降の便を時刻順に最大n件 */
+const upcoming = (stamp, dep, arr, n) => {
+  const out = [];
+  for (const key in stopNames){
+    if (!routeVisible(key)) continue;
+    for (let i = bisect(stamp, dep[key]); i < dep[key].length; i++){
+      out.push([key, dep[key][i], arr[key][i]]);
+    }
+  }
+  out.sort((a,b) => a[1] - b[1]);
+  return out.slice(0, n);
+};
+
+/* すでに発車した便のうち直近の1本 */
+const lastDeparted = (stamp, dep, arr) => {
+  let best = null;
+  for (const key in stopNames){
+    if (!routeVisible(key)) continue;
+    const i = bisect(stamp, dep[key]) - 1;
+    if (i >= 0 && (best === null || parseInt(dep[key][i]) > parseInt(best[1]))){
+      best = [key, dep[key][i], arr[key][i]];
+    }
+  }
+  return best ? [best] : [];
+};
+
+/* ===================== DOM ===================== */
+const $ = id => document.getElementById(id);
+const cascade = $("cascade"), cascadeWrap = $("cascadeWrap");
+
+/* ===================== 描画 ===================== */
+const STEP_X = 126, STEP_Y = 152, ITEM_W = 150, ITEM_H = 320;
+const RATIO = STEP_X / STEP_Y;   // 縦スクロール量 → 横移動量
+
+/* 縦スクロールと横移動を連動させて、斜め方向にしか動かないようにする */
+cascadeWrap.addEventListener("scroll", () => {
+  cascade.style.transform = `translateX(${-cascadeWrap.scrollTop * RATIO}px)`;
+}, {passive:true});
+
+/* PCの横ホイール・Shift+ホイールも斜め移動に変換 */
+cascadeWrap.addEventListener("wheel", e => {
+  if (Math.abs(e.deltaX) > Math.abs(e.deltaY)){
+    cascadeWrap.scrollTop += e.deltaX;
+    e.preventDefault();
+  }
+}, {passive:false});
+
+/* ---- 全面ドラッグ処理 ----
+   余白部を含むエリア内のどこを掴んでも、指の動きの
+   斜め(↖↘)成分でスクロールする。慣性つき。 */
+{
+  const K = RATIO*RATIO + 1;           // 斜めレール方向への射影係数
+  let dragging = false, startX = 0, startY = 0, startScroll = 0;
+  let vel = 0, lastTop = 0, lastT = 0, rafId = 0;
+
+  const momentum = () => {
+    if (Math.abs(vel) < 0.25) return;
+    const before = cascadeWrap.scrollTop;
+    cascadeWrap.scrollTop = before + vel;
+    vel *= 0.94;
+    if (cascadeWrap.scrollTop !== before) rafId = requestAnimationFrame(momentum);
+  };
+
+  cascadeWrap.addEventListener("pointerdown", e => {
+    if (e.button !== 0 && e.pointerType === "mouse") return;
+    cancelAnimationFrame(rafId);
+    dragging = true; vel = 0;
+    startX = e.clientX; startY = e.clientY;
+    startScroll = cascadeWrap.scrollTop;
+    lastTop = startScroll; lastT = performance.now();
+    cascadeWrap.classList.add("dragging");
+    cascadeWrap.setPointerCapture(e.pointerId);
+  });
+
+  cascadeWrap.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    const dx = e.clientX - startX, dy = e.clientY - startY;
+    cascadeWrap.scrollTop = startScroll - (dx*RATIO + dy) / K;
+    const now = performance.now();
+    if (now - lastT > 16){
+      vel = (cascadeWrap.scrollTop - lastTop) / (now - lastT) * 16;
+      lastTop = cascadeWrap.scrollTop; lastT = now;
+    }
+  });
+
+  const endDrag = () => {
+    if (!dragging) return;
+    dragging = false;
+    cascadeWrap.classList.remove("dragging");
+    rafId = requestAnimationFrame(momentum);
+  };
+  cascadeWrap.addEventListener("pointerup", endDrag);
+  cascadeWrap.addEventListener("pointercancel", endDrag);
+}
+
+let lastSig = null;        // カスケードの再構築が必要か判定する署名
+let initialScroll = 0;     // 「先発が左上に来る」初期スクロール位置
+
+const busHTML = (b, isPast, isFirst) => {
+  const [key, d, a] = b;
+  const mt = routeMeta[key];
+  const dur = toMin(parseInt(a)) - toMin(parseInt(d));
+  return `
+    <div class="above">
+      <div class="dur">${dur}分</div>
+      <div class="dep">${colon(d)}</div>
+    </div>
+    <div class="oval">
+      <div class="badge" style="border-color:${mt.color}">
+        <span class="b1">${mt.b1}</span>${mt.b2 ? `<span class="b2">${mt.b2}</span>` : ""}
+      </div>
+    </div>
+    <div class="below">
+      <div class="arr">${colon(a)}<small>着</small></div>
+      <div class="chips">
+        ${isPast ? `<span class="chip gone">発車済</span>` : ""}
+        ${isFirst ? `<span class="chip first">先発</span>` : ""}
+        <span class="chip" style="background:${mt.color}">${mt.chip}</span>
+      </div>
+      <div class="stopname">${direction === 0 ? stopNames[key]+" 発" : stopNames[key]+" 着"}</div>
+    </div>`;
+};
+
+/* カスケードを組み立てる(内容が変わったときだけ呼ぶ) */
+function buildCascade(items, pastN, snap){
+  const link = direction === 0 ? stopLinks : stopLinks2;
+  const next = items.slice(pastN);
+
+  const wasAtInitial = Math.abs(cascadeWrap.scrollTop - initialScroll) < 4;
+
+  cascade.innerHTML = "";
+  const n = Math.max(items.length, pastN + 1);
+  cascade.style.width  = ((n-1)*STEP_X + ITEM_W + 16 + pastN*STEP_X*2) + "px";
+  cascade.style.height = Math.max(
+    (n-1)*STEP_Y + ITEM_H,
+    cascadeWrap.clientHeight + pastN*STEP_Y   // 過去便まで戻れるだけの高さを常に確保
+  ) + "px";
+
+  items.forEach((b, i) => {
+    const isPast = i < pastN;
+    const el = document.createElement("a");
+    el.className = "result" + (isPast ? " past" : "");
+    el.href = link[b[0]];
+    el.style.left = (8 + i*STEP_X) + "px";
+    el.style.top  = (10 + i*STEP_Y) + "px";
+    el.innerHTML = busHTML(b, isPast, i === pastN && next.length > 0);
+    cascade.appendChild(el);
+  });
+
+  if (next.length === 0){
+    const end = document.createElement("div");
+    end.className = "end-card";
+    end.style.left = (16 + pastN*STEP_X) + "px";
+    end.style.top  = (24 + pastN*STEP_Y) + "px";
+    end.innerHTML = direction === 0
+      ? "本日の駅行きバスは終了しました。"
+      : "本日の<ruby>高専行きバス<rp>(</rp><rt>地獄への急行バス</rt><rp>)</rp></ruby>は終了しました。";
+    cascade.appendChild(end);
+  }
+
+  /* 初期位置 = 先発の便が左上。過去の便は左上方向へのスクロールで見える */
+  initialScroll = pastN * STEP_Y;
+  if (snap || wasAtInitial){
+    cascadeWrap.scrollTop = initialScroll;   // scrollイベント経由でtranslateXも揃う
+    cascade.style.transform = `translateX(${-initialScroll * RATIO}px)`;
+  }
+}
+
+/* 毎秒呼ぶ。時刻表示は常に更新し、カスケードは内容が変わったときだけ再構築 */
+function render(snap = false){
+  let h, m;
+  if (is_timeNow){
+    const now = new Date();
+    h = now.getHours(); m = now.getMinutes();
+    $("departBtn").innerHTML =
+      `${now.getMonth()+1}月${now.getDate()}日(${WD[now.getDay()]}) ${pad(h)}:${pad(m)} 出発 ▾`;
+    $("departBtn").classList.remove("edited");
+  }else{
+    h = changedHour; m = changedMinute;
+    $("departBtn").innerHTML = `${pad(h)}:${pad(m)} 出発に変更中 ▾`;
+    $("departBtn").classList.add("edited");
+  }
+  $("nowClock").textContent = pad(h)+":"+pad(m);
+
+  const stamp = ts(h, m);
+  const dep = direction === 0 ? stopTimes   : stopTimes2;
+  const arr = direction === 0 ? arriveTimes : arriveTimes2;
+  const past = lastDeparted(stamp, dep, arr);
+  const next = upcoming(stamp, dep, arr, 5);
+  const items = [...past, ...next];
+
+  /* 便のリスト自体が変わったときだけDOMを作り直す(スクロール中のカクつき防止) */
+  const sig = [direction, filter, items.map(b => b[0]+b[1]).join(",")].join("|");
+  if (snap || sig !== lastSig){
+    lastSig = sig;
+    buildCascade(items, past.length, snap);
+  }
+
+  if (next.length === 0){
+    $("leadMins").innerHTML = "&nbsp;";
+    $("leadDep").textContent = "終了";
+  }else{
+    const wait = toMin(parseInt(next[0][1])) - toMin(stamp);
+    $("leadMins").textContent = wait === 0 ? "まもなく発車" : `あと${wait}分`;
+    $("leadDep").textContent = colon(next[0][1]);
+  }
+}
+
+/* ===================== 操作 ===================== */
+$("swapBtn").addEventListener("click", () => {
+  direction = 1 - direction;
+  $("fromName").textContent = direction === 0 ? "小山高専" : "小山駅";
+  $("toName").textContent   = direction === 0 ? "小山駅"   : "小山高専";
+  $("swapBtn").classList.toggle("flip", direction === 1);
+  render(true);
+});
+
+$("tabs").addEventListener("click", e => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+  filter = btn.dataset.f;
+  [...$("tabs").children].forEach(b => b.classList.toggle("on", b === btn));
+  render(true);
+});
+
+$("departBtn").addEventListener("click", () => $("timePanel").classList.toggle("open"));
+
+const clock = $("ChangeableClock");
+const setNewTime = () => {
+  if (!clock.value) return;
+  const [h, m] = clock.value.split(":");
+  is_timeNow = false; changedHour = +h; changedMinute = +m;
+  render(true);
+};
+clock.addEventListener("input", setNewTime);
+clock.addEventListener("change", setNewTime);
+$("ResetTime").addEventListener("click", () => {
+  is_timeNow = true; clock.value = "";
+  $("timePanel").classList.remove("open");
+  render(true);
+});
+
+/* シート開閉 */
+$("pdfNav").addEventListener("click", () => $("pdfSheet").classList.add("open"));
+$("infoNav").addEventListener("click", () => $("infoSheet").classList.add("open"));
+for (const id of ["pdfSheet","infoSheet"]){
+  $(id).addEventListener("click", e => { if (e.target === $(id)) $(id).classList.remove("open"); });
+}
+
+setInterval(() => render(false), 1000);
+render(true);
+
+/* PWA機能は廃止。過去に登録されたService Workerとキャッシュを掃除する
+   (これがないと、既存ユーザーには古いキャッシュ版が表示され続ける) */
+if ("serviceWorker" in navigator){
+  navigator.serviceWorker.getRegistrations()
+    .then(regs => regs.forEach(r => r.unregister()))
+    .catch(()=>{});
+}
+if ("caches" in window){
+  caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(()=>{});
+}
+</script>
+</body>
+</html>
