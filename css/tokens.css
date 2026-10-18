@@ -1,0 +1,31 @@
+/* デザイントークン。デジタル庁デザインシステム（DADS）の考え方に沿う。 */
+:root {
+  --font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+
+  --color-text: #1a1a1c;
+  --color-text-sub: #4d4d4f;
+  --color-background: #ffffff;
+  --color-surface: #f2f2f2;
+  --color-divider: #d9d9d9;
+  --color-border: #767676; /* 操作部品の枠線。背景に対して 3:1 以上 */
+
+  --color-accent: #0100cc;
+  --color-on-accent: #ffffff;
+  --color-focus: #ffd43d;
+  --color-focus-outline: #000000;
+
+  --route-takaoka: #b7ae3f;
+  --route-johtoh: #cf5992;
+  --route-kuwatohbu: #1e4778;
+
+  --radius: 8px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --tap-size: 48px; /* 操作部品の最小サイズ */
+  --content-width: 640px;
+}

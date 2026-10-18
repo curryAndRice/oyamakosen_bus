@@ -1,29 +1,12 @@
-var cacheName = 'bus-app';
-var filesToCache = [
-  '/',
-  '/index.html',
-  '/css/style.css',
-  '/js/index.js',
-  '/js/main.js',
-  '/img/pdf_icon_blue.png',
-  '/img/pdf_icon_yellow.png',
-  '/img/pdf_icon_red.png',
-];
+// 旧 Service Worker の後始末用。キャッシュを消して自分自身を登録解除する。
+// アプリが安定してから、改めて SW 化する。
+self.addEventListener("install", () => self.skipWaiting());
 
-/* サービスワーカー起動して、コンテンツをキャッシュする */
-self.addEventListener('install', function(e) {
-  e.waitUntil(
-    caches.open(cacheName).then(function(cache) {
-      return cache.addAll(filesToCache);
-    })
-  );
-});
-
-/* オフライン時はキャッシュからコンテンツを取得する */
-self.addEventListener('fetch', function(e) {
-  e.respondWith(
-    caches.match(e.request).then(function(response) {
-      return response || fetch(e.request);
-    })
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches
+      .keys()
+      .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+      .then(() => self.registration.unregister())
   );
 });

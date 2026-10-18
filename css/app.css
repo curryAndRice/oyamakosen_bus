@@ -1,0 +1,342 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-text);
+  background: var(--color-background);
+}
+
+.page {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 var(--space-4) var(--space-8);
+}
+
+/* フォーカス表示（DADS: 黒の縁取り + 黄色の背景リング） */
+:focus-visible {
+  outline: 4px solid var(--color-focus-outline);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--color-focus);
+}
+
+a {
+  color: var(--color-accent);
+}
+
+/* ---- ヘッダ ---- */
+.site-header {
+  padding: var(--space-4) 0 var(--space-2);
+}
+
+.icon {
+  flex: none;
+  width: 24px;
+  height: 24px;
+}
+
+.site-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.4;
+}
+
+.site-lead {
+  margin: 0;
+  color: var(--color-text-sub);
+  font-size: 0.875rem;
+}
+
+/* 途中で折り返したくない塊。折り返しは塊の間だけで起こる */
+.nowrap {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* ---- 操作部 ---- */
+.controls {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3) 0 var(--space-4);
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.btn {
+  min-height: var(--tap-size);
+  padding: var(--space-2) var(--space-4);
+  font: inherit;
+  font-weight: 700;
+  color: var(--color-accent);
+  background: var(--color-background);
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.btn[aria-pressed="true"] {
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+}
+
+.btn--large {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: 64px;
+  padding-inline: var(--space-2);
+  font-size: 1.25rem;
+}
+
+/* 選択中は白、未選択は青のアイコンを出し分ける */
+.btn[aria-pressed="true"] .icon--off,
+.btn[aria-pressed="false"] .icon--on {
+  display: none;
+}
+
+/* アイコンを文字の上に積む（横幅を増やさない） */
+.btn--stack {
+  flex-direction: column;
+  gap: 0;
+  line-height: 1.3;
+}
+
+.btn--small {
+  min-height: 44px;
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.875rem;
+}
+
+.time-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-2);
+}
+
+.time-row .btn {
+  padding-inline: var(--space-3);
+  white-space: nowrap; /* 「時刻リセット」を途中で割らない */
+}
+
+.time-input {
+  width: 100%;
+  min-width: 0;
+  min-height: 64px;
+  padding: 0 var(--space-3);
+  font: inherit;
+  font-size: 2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  background: var(--color-background);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.day-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.day-row__label {
+  font-size: 0.875rem;
+  color: var(--color-text-sub);
+}
+
+.day-row__note {
+  font-size: 0.875rem;
+  color: var(--color-text);
+}
+
+.day-row .segmented {
+  grid-template-columns: repeat(2, auto);
+}
+
+/* ---- 結果 ---- */
+.status {
+  margin: 0 0 var(--space-2);
+  font-weight: 700;
+}
+
+.trip-list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trip {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-1) var(--space-4);
+  align-items: center;
+  min-height: var(--tap-size);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text);
+  text-decoration: none;
+  background: var(--color-background);
+  border: 1px solid var(--color-divider);
+  border-left: 10px solid var(--route-color);
+  border-radius: var(--radius);
+}
+
+.trip:hover {
+  background: var(--color-surface);
+}
+
+.trip__times {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.trip__dep {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.trip__arrow,
+.trip__arr {
+  font-size: 0.875rem;
+  color: var(--color-text-sub);
+}
+
+.trip__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+}
+
+.route-tag {
+  padding: 0 var(--space-2);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--route-tag-color);
+  border-radius: 4px;
+}
+
+.trip__stop {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--space-2);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-sub);
+}
+
+/* 停留所名の途中では折り返さない。折り返すのは「発」と「着」の間だけ */
+.trip__stop-part {
+  white-space: nowrap;
+}
+
+.trip__side {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.875rem;
+}
+
+.trip__remaining {
+  font-weight: 700;
+}
+
+.trip__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.trip-item--past .trip {
+  background: var(--color-surface);
+}
+
+.trip-item--past .trip__dep,
+.trip-item--past .trip__remaining {
+  color: var(--color-text-sub);
+}
+
+.finished {
+  margin: 0;
+  padding: var(--space-6) var(--space-4);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+}
+
+.finished__tips {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--color-text-sub);
+}
+
+/* ---- フッタ ---- */
+.guide {
+  margin: var(--space-6) 0 0;
+  font-size: 0.875rem;
+}
+
+.site-footer {
+  margin-top: var(--space-8);
+  padding-top: var(--space-4);
+  font-size: 0.875rem;
+  color: var(--color-text-sub);
+  border-top: 1px solid var(--color-divider);
+}
+
+.site-footer h2 {
+  margin: 0 0 var(--space-2);
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.footer-links a {
+  display: inline-block;
+  padding: var(--space-2) 0; /* タップ領域を確保 */
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* 狭い画面: 発車時刻を一段小さく */
+@media (max-width: 360px) {
+  .trip__dep {
+    font-size: 1.75rem;
+  }
+}

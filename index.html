@@ -3,62 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="小山高専⇔小山駅東口のバスを調べて、とっとと家にずらかろう!!学校は疲れるからしょうがないね。">
-    <link rel="stylesheet" href="./css/style.css">
-    <!-- <link rel="shortcut icon" type="image/x-icon" href="favicon.ico"> -->
+    <meta name="description" content="小山高専⇔小山駅東口のおーバスで、次に乗れるバスを調べる。 ~ 10倍ストレスフリーなおーバス体験を目指して ~ ">
+    <meta name="theme-color" content="#0100cc">
     <title>家への誘い</title>
     <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="black"/>
+    <link rel="stylesheet" href="./css/tokens.css">
+    <link rel="stylesheet" href="./css/app.css">
+    <!-- 時刻表の取得とモジュールの読み込みを並行して始める -->
+    <link rel="preload" href="./data/timetable.json" as="fetch" crossorigin>
+    <link rel="modulepreload" href="./js/calendar.js">
+    <link rel="modulepreload" href="./js/timetable.js">
+    <link rel="modulepreload" href="./js/view.js">
+    <script type="module" src="./js/main.js"></script>
 </head>
 <body>
-    <a href="https://curryandrice.github.io/oyamakosen_bus/index(1).html">
-        <p class="popup-open" for="popup">モダンVerはじめました。（パソコン非対応！！！！）世はまさに、大AI時代…ｯ!!悲しかな。ちなみに、2026/09/01以降は、勝手にこっちが出るようにします。</p>
-    </a>
-    <div id = "analog"></div>
-    <div id = "additionalInfo">
-        <h2>時刻表 (城東中久喜線、 高岳線、 桑東部絹路線)</h2>
-        <div id = "schedule">
-            <a href = "https://www.city.oyama.tochigi.jp/data/doc/1758095170_doc_873_0.pdf">
-                <img loading="lazy" src="img/pdf_icon_red.png" alt="">
-            </a>
-            <a href = "https://www.city.oyama.tochigi.jp/data/doc/1758095166_doc_873_0.pdf">
-                <img loading="lazy" src="img/pdf_icon_yellow.png" alt="">
-            </a>
-            <a href = "https://www.city.oyama.tochigi.jp/data/doc/1758095215_doc_873_0.pdf">
-                <img loading="lazy" src="img/pdf_icon_blue.png" alt="">
-            </a>
-        </div>
+    <div class="page">
+        <header class="site-header">
+            <h1 class="site-title">家への誘い<img class="icon" src="./img/bus.png" alt="" width="32" height="32"></h1>
+            <p class="site-lead"><span class="nowrap">小山高専 ⇔ 小山駅東口　</span><span class="nowrap">次に乗れるおーバスへご招待</span></p>
+        </header>
+
+        <main>
+            <section class="controls" aria-label="表示の条件">
+                <div class="segmented" role="group" aria-label="方向">
+                    <button type="button" class="btn btn--large" data-direction="toStation" aria-pressed="false"><img class="icon icon--off" src="./img/kosen_blue.png" alt="" width="24" height="24"><img class="icon icon--on" src="./img/kosen_white.png" alt="" width="24" height="24"><span>高専→駅</span><img class="icon icon--off" src="./img/train_blue.png" alt="" width="24" height="24"><img class="icon icon--on" src="./img/train_white.png" alt="" width="24" height="24"></button>
+                    <button type="button" class="btn btn--large" data-direction="toSchool" aria-pressed="false"><img class="icon icon--off" src="./img/train_blue.png" alt="" width="24" height="24"><img class="icon icon--on" src="./img/train_white.png" alt="" width="24" height="24"><span>駅→高専</span><img class="icon icon--off" src="./img/kosen_blue.png" alt="" width="24" height="24"><img class="icon icon--on" src="./img/kosen_white.png" alt="" width="24" height="24"></button>
+                </div>
+
+                <div class="time-row">
+                    <input type="time" id="time-input" class="time-input" step="60" aria-label="時刻">
+                    <button type="button" id="time-reset" class="btn btn--large btn--stack"><img class="icon" src="./img/reset_time.png" alt="" width="24" height="24"><span>時刻リセット</span></button>
+                </div>
+
+                <div class="day-row">
+                    <span class="day-row__label" id="day-label">ダイヤ</span>
+                    <div class="segmented" role="group" aria-labelledby="day-label">
+                        <button type="button" class="btn btn--small" data-day-type="weekday" aria-pressed="false">平日</button>
+                        <button type="button" class="btn btn--small" data-day-type="weekend" aria-pressed="false">土日</button>
+                    </div>
+                    <span id="custom-time-note" class="day-row__note" hidden>（指定時刻）</span>
+                </div>
+            </section>
+
+            <section aria-label="次のバス">
+                <p id="status" class="status" role="status" hidden></p>
+                <ol id="trip-list" class="trip-list"></ol>
+                <p id="finished" class="finished" hidden>本日の運行は終了しました<small class="finished__tips">Tips: 高専⇔駅は、徒歩でおおよそ1時間です</small></p>
+            </section>
+
+            <p class="guide">便をタップすると、おーバスLiveでそのバスの現在地を確認できます。</p>
+        </main>
+
+        <footer class="site-footer">
+            <h2>時刻表（小山市公式）</h2>
+            <ul class="footer-links">
+                <li><a href="./takaoka.pdf">高岳線</a></li>
+                <li><a href="./johtoh.pdf">城東中久喜線</a></li>
+                <li><a href="./kuwatohbu.pdf">桑東部絹路線</a></li>
+                <li><a href="http://o-bus.bus-go.com/">おーバスLive</a></li>
+                <li><a href="https://github.com/curryAndRice/oyamakosen_bus">repository</a></li>
+            </ul>
+            <p>このアプリは、小山市や小山高専、株式会社アチピレーションテクノロジーとは関係ありません。到着時刻は参考程度にしてください。</p>
+        </footer>
     </div>
-
-    <div id = "setTime">
-        <input type="time" name="app-time" step="60", id="ChangeableClock">
-        <button id = "ResetTime">時刻リセット</button>
-    </div>
-
-    <div id ="dateDisp">
-        <p id = "DateTimeDisp">現在時刻 読み込み中<p>
-        <p id = "FirstBusDisp">最短バスまでの残り時間 読み込み中</p>
-    </div>
-
-    <!--ここから 高専→駅-->
-    <div id = "FirstBus"></div>
-    <div id = "SoonBus"></div>
-
-    <p>↑高専→駅↑===========↓駅→高専↓<p>
-
-    <!--ここから 駅→高専-->
-    <div id = "FirstBus2"></div>
-    <div id = "SoonBus2"></div>
-
-    <a href="http://o-bus.bus-go.com/">おーバス live はこちら ※上の時刻表示部でも、クリックで開きます</a>
-    <p>小山高専から小山駅東口まで行く最速のバスを調べるだけのアプリです。上の時計について、青針→現在時刻 赤針→最短の「高専→駅」のバスの時刻 です。このアプリは、小山市や小山高専、株式会社アチピレーションテクノロジーとは関係ありません。※到着時刻は参考程度に捉えてください。</p>
-    
-    <a href="https://github.com/curryAndRice/oyamakosen_bus"><p>repository</p></a>
-    
-    <script src="./js/index.js"></script>
-    <script src="js/main.js"></script>
 
     <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "64813b43d57b44fc892f6d00df792695"}'></script><!-- End Cloudflare Web Analytics -->
-    
 </body>
 </html>
