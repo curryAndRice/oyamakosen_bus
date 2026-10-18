@@ -2,6 +2,7 @@
 import { dayTypeOf } from "./calendar.js";
 import { loadTimetable, buildTrips, pickTrips, toMinutes, TO_STATION, TO_SCHOOL } from "./timetable.js";
 import { renderTrips, renderCustomTimeNote, renderPressed, renderTimeInput } from "./view.js";
+import { initShare } from "./share.js";
 
 const pad = (n) => String(n).padStart(2, "0");
 const clockText = (date) => `${pad(date.getHours())}:${pad(date.getMinutes())}`;
@@ -80,6 +81,8 @@ document.addEventListener("visibilitychange", () => {
     tick();
   }
 });
+
+initShare();
 
 // 時刻表の取得は index_v3.html の <link rel="preload"> で先行開始されている
 loadTimetable()

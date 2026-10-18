@@ -330,6 +330,37 @@ a {
   padding: var(--space-2) 0; /* タップ領域を確保 */
 }
 
+/* ひっそり置く共有ボタン。見た目は控えめなテキストボタン */
+.share {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin: 0 0 var(--space-4);
+}
+
+.share-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: var(--space-1) var(--space-3);
+  font: inherit;
+  color: var(--color-accent);
+  background: transparent;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.share-button rt {
+  font-size: 0.6em;
+}
+
+.share-note {
+  color: var(--color-text);
+}
+
 [hidden] {
   display: none !important;
 }
