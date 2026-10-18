@@ -34,7 +34,6 @@ const tripItem = (trip, nowMinutes, isPrevious) => {
     element("span", "trip__arr", trip.arrText),
   );
 
-  const routeName = trip.line.label ? `${trip.route.name} ${trip.line.label}` : trip.route.name;
   // 「発」と「着」を別々の塊にして、折り返しはその間だけで起こるようにする
   const stop = element("span", "trip__stop");
   stop.append(
@@ -42,7 +41,10 @@ const tripItem = (trip, nowMinutes, isPrevious) => {
     element("span", "trip__stop-part", `→${trip.line.to}着`),
   );
   const meta = element("span", "trip__meta");
-  meta.append(element("span", "route-tag", routeName), stop);
+  // 回り方向は別タグにして、折り返しはタグの間だけで起こるようにする
+  meta.append(element("span", "route-tag", trip.route.name));
+  if (trip.line.label) meta.append(element("span", "route-tag route-tag--label", trip.line.label));
+  meta.append(stop);
 
   const remaining = isPrevious
     ? formatElapsed(nowMinutes - trip.dep)

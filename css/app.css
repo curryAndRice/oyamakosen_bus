@@ -235,6 +235,13 @@ a {
   border-radius: 4px;
 }
 
+/* 回り方向のタグ。白地に路線色の文字と枠（高さは通常のタグと同じ） */
+.route-tag--label {
+  color: var(--route-tag-color);
+  background: #ffffff;
+  box-shadow: inset 0 0 0 2px var(--route-tag-color);
+}
+
 .trip__stop {
   display: flex;
   flex-wrap: wrap;
